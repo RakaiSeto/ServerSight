@@ -3,7 +3,7 @@ services:
     container_name: serversight_be
     image: ghcr.io/rakaiseto/serversight_be:latest
     secrets:
-      - db
+      - server-monitoring
     ports:
       - "127.0.0.1:20999:3000"
     volumes:
