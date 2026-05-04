@@ -1,0 +1,85 @@
+generator client {
+  provider = "prisma-client-js"
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Website {
+  id        String        @id @default(cuid())
+  name      String
+  url       String        @unique
+  enabled   Boolean       @default(true)
+  deletedAt DateTime?
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  checks    WebsiteCheck[]
+  components WebsiteComponent[]
+
+  @@index([deletedAt, enabled])
+}
+
+model WebsiteComponent {
+  id        String                  @id @default(cuid())
+  websiteId String
+  website   Website                 @relation(fields: [websiteId], references: [id])
+  label     String
+  targetUrl String
+  requestMethod  HttpMethod         @default(GET)
+  requestPayload String?
+  enabled   Boolean                 @default(true)
+  createdAt DateTime                @default(now())
+  updatedAt DateTime                @updatedAt
+  checks    WebsiteComponentCheck[]
+
+  @@index([websiteId, enabled])
+}
+
+enum HttpMethod {
+  GET
+  POST
+  PUT
+  PATCH
+  DELETE
+}
+
+enum WebsiteStatus {
+  UP
+  DOWN
+}
+
+model WebsiteCheck {
+  id         String        @id @default(cuid())
+  websiteId  String
+  website    Website       @relation(fields: [websiteId], references: [id])
+  status     WebsiteStatus
+  statusCode Int?
+  responseMs Int?
+  errorText  String?
+  checkedAt  DateTime      @default(now())
+
+  @@index([websiteId, checkedAt(sort: Desc)])
+}
+
+model WebsiteComponentCheck {
+  id          String           @id @default(cuid())
+  componentId String
+  component   WebsiteComponent @relation(fields: [componentId], references: [id])
+  status      WebsiteStatus
+  statusCode  Int?
+  responseMs  Int?
+  errorText   String?
+  checkedAt   DateTime         @default(now())
+
+  @@index([componentId, checkedAt(sort: Desc)])
+}
