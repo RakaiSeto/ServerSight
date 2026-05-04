@@ -58,7 +58,7 @@ jobs:
           push: true
           tags: ${{ env.REGISTRY }}/${{ env.BE_IMAGE }}:latest
           build-args: |
-            DATABASE_URL=${{ github.ref_name == 'main' && secrets.DATABASE_URL }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
